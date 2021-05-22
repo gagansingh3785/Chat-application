@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+  </head>
+  <style>
+  	body{
+  		background-color:#DC143C;
+  	}
+  	
+  	.special_input{
+  		background: none;
+  		border: none;
+  		border-bottom: 2px solid black;
+  	}
+  	.special_input:focus{
+  		border: none;
+  		box-shadow: none;
+  	}
+  	.log{
+  		background-color: black;
+  		box-shadow: 0px 0px 10px black;
+  		height:450px; 
+  		width:400px;
+  		padding-top: 10px;
+  	}
+  	.log-head{
+  		color: #DC143C;
+		background-color: black;
+  		box-shadow: 0px 0px 10px black; 
+  		width:400px;
+  		padding-bottom: 5px;
+  		padding-top: 5px;
+  		text-align: center;
+  	}
+  	.input_btn{
+  		background-color: black;
+  		color: #DC143C;
+  	}
+
+  	
+  </style>
+  <body>
+    <div class='container-fliuid'>
+    	<br>
+    	<div class='mx-auto' style='width:500px'>
+    		<div class='log-head'>
+				<h5 id=user>User: {{request.user.username}}</h5>
+				<h5>This is chat room : <span id='room_name'>{{roomname}}</span></h5>
+			</div>
+			<br>
+			<div class='log' id='chat-log'></div>
+			<br>
+			<input id='chat-message-input' class='special_input' type='text' size='43'>
+			<input class='input_btn btn btn-md' id='chat-message-submit' type='button' value='Send'>
+		</div>
+	</div>
+	   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+  </body>
+	<script>
+		const roomName = document.getElementById('room_name').innerHTML;
+		let user = document.getElementById('user').innerHTML;
+	
+		console.log(user);
+		console.log(roomName);
+		const chatSocket = new WebSocket(
+			'ws://'
+			+ window.location.host
+			+ '/ws/chat/'
+			+ roomName
+			);
+		console.log(chatSocket.readyState);
+
+		chatSocket.onmessage = function(e){
+			console.log('messaging');
+			console.log(e);
+			const data = JSON.parse(e.data);
+			console.log(data);
+			let ele = document.createElement('p');
+			ele.style.fontWeight = 'bold';
+			let text = document.createTextNode( data.message.user + " " + data.message.message );
+			console.log(user.length);
+			console.log(text.length);
+			ele.appendChild(text);
+			ele.style.width = '150px';
+			ele.style.backgroundColor = '#DC143C';
+			ele.style.color = 'black';
+			ele.style.marginLeft = '10px';
+			ele.style.borderRadius = '3px';
+			if (data.message.user === user)
+			{
+				ele.style.marginLeft = '60%';
+			}
+			document.getElementById('chat-log').appendChild(ele);
+		};
+		chatSocket.onclose = function(e){
+			console.error("chat socket closed unexpectedly");
+
+		};
+		document.getElementById('chat-message-input').focus();
+		document.getElementById('chat-message-input').onkeyup = function(e){
+			if(e.keyCode === 13){
+				document.getElementById('chat-message-submit').click();
+			}
+		};
+		document.getElementById('chat-message-submit').onclick = function(e){
+			const messageInputDom = document.getElementById('chat-message-input');
+			const message = messageInputDom.value;
+			console.log(user);
+			console.log(user.length);
+			if (user === 'User: ')
+			{
+				user = 'annonymousUser';
+			}
+			chatSocket.send(JSON.stringify({
+                'message': message,
+                'user': user
+            }));
+			messageInputDom.value = '';
+			console.log('message sent');
+		};
+
+	</script>
+	
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+	</head>
+	<body>
+		
+		<a href="{% url 'logout' %}">logout</a>
+		<h3>What chat room would you like to enter?</h3>
+		<br>
+		<input id='room-name-input' type='text' size='100'>
+		<br>
+		<input id='room-name-submit' type='button' value='Enter'>
+	</body>
+	<script>
+		document.getElementById('room-name-input').focus();
+		document.getElementById('room-name-input').onkeyup = function(e){
+			console.log('inside onkeyup function');
+			if(e.keyCode === 13){
+				console.log('enter pressed');
+				document.getElementById('room-name-submit').click();
+			}
+		};
+		document.getElementById('room-name-submit').onclick = function(e){
+			var roomName = document.getElementById('room-name-input').value;
+			console.log('inside onclick function');
+			if (roomName != '')
+			{
+				window.location.pathname = '/chat/' + roomName;
+			}
+			else{
+				document.getElementById('room-name-input').value = '';
+			}
+		};
+	</script>
+</html>
